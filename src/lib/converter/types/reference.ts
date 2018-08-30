@@ -2,7 +2,7 @@ import * as ts from 'typescript';
 
 import { Type, IntrinsicType, ReflectionType } from '../../models/types/index';
 import { ReflectionKind, DeclarationReflection } from '../../models/reflections/index';
-import { createReferenceType } from '../factories/index';
+import { createReferenceType, createJSDocReferenceType } from '../factories/index';
 import { Component, ConverterTypeComponent, TypeNodeConverter } from '../components';
 import { Context } from '../context';
 import { Converter } from '../converter';
@@ -51,7 +51,7 @@ export class ReferenceConverter extends ConverterTypeComponent implements TypeNo
             return this.convertLiteral(context, type.symbol, node);
         }
 
-        const result = createReferenceType(context, type.symbol);
+        const result = ts.isImportTypeNode(node) ? createJSDocReferenceType(context, node) : createReferenceType(context, type.symbol);
         if (node.typeArguments) {
             result.typeArguments = node.typeArguments.map((n) => this.owner.convertType(context, n));
         }

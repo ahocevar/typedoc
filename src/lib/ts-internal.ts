@@ -71,6 +71,11 @@ export function combinePaths(path1: string, path2: string): string {
  * https://github.com/Microsoft/TypeScript/blob/v2.1.4/src/compiler/utilities.ts#L3-L4
  */
 
+// https://github.com/Microsoft/TypeScript/blob/v3.0.1/src/compiler/utilities.ts#L223
+export function getResolvedModule(sourceFile: ts.SourceFile, moduleNameText: string): ts.ResolvedModuleFull | undefined {
+  return tsany.getResolvedModule.apply(this, arguments);
+}
+
 // https://github.com/Microsoft/TypeScript/blob/v2.1.4/src/compiler/utilities.ts#L152
 export function getSourceFileOfNode(node: ts.Node): ts.SourceFile {
   return tsany.getSourceFileOfNode.apply(this, arguments);

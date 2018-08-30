@@ -1,4 +1,5 @@
 import * as ts from 'typescript';
+import * as _ts from '../../ts-internal';
 
 import { ReferenceType } from '../../models/types/index';
 import { Context } from '../context';
@@ -19,6 +20,24 @@ export function createReferenceType(context: Context, symbol: ts.Symbol, include
     if (includeParent && symbol.parent) {
         name = checker.symbolToString(symbol.parent) + '.' + name;
     }
+
+    return new ReferenceType(name, id);
+}
+
+/**
+ * Create a new reference type pointing to the given import type node.
+ *
+ * @param context  The context object describing the current state the converter is in.
+ * @param node  The import type node the reference type should point to.
+ * @returns A new reference type instance pointing to the given import type node.
+ */
+export function createJSDocReferenceType(context: Context, node: ts.ImportTypeNode): ReferenceType {
+    const name = node.qualifier.getText();
+    const literal = ((node.argument as ts.LiteralTypeNode).literal as ts.LiteralExpression);
+    const file = _ts.getResolvedModule(_ts.getSourceFileOfNode(node), literal.text).resolvedFileName;
+    const sourceFileObject = context.program.getSourceFile(file);
+    const local = (sourceFileObject as any).locals.get(name);
+    const id = context.getSymbolID(local.exportSymbol);
 
     return new ReferenceType(name, id);
 }
