@@ -164,20 +164,30 @@ export class CommentPlugin extends ConverterComponent {
         if (!node) {
             return;
         }
-        const rawComment = getRawComment(node);
-        if (!rawComment) {
-            return;
-        }
-
-        if (reflection.kindOf(ReflectionKind.FunctionOrMethod) || (reflection.kindOf(ReflectionKind.Event) && reflection['signatures'])) {
-            const comment = parseComment(rawComment, reflection.comment);
-            this.applyModifiers(reflection, comment);
-        } else if (reflection.kindOf(ReflectionKind.Module)) {
-            this.storeModuleComment(rawComment, reflection);
-        } else {
-            const comment = parseComment(rawComment, reflection.comment);
+        if (ts.isJSDocTypedefTag(node) || ts.isJSDocPropertyTag(node)) {
+            const rawComment = node.comment;
+            if (!rawComment) {
+                return;
+            }
+            const comment = parseComment(node.comment, reflection.comment);
             this.applyModifiers(reflection, comment);
             reflection.comment = comment;
+        } else {
+            const rawComment = getRawComment(node);
+            if (!rawComment) {
+                return;
+            }
+
+            if (reflection.kindOf(ReflectionKind.FunctionOrMethod) || (reflection.kindOf(ReflectionKind.Event) && reflection['signatures'])) {
+                const comment = parseComment(rawComment, reflection.comment);
+                this.applyModifiers(reflection, comment);
+            } else if (reflection.kindOf(ReflectionKind.Module)) {
+                this.storeModuleComment(rawComment, reflection);
+            } else {
+                const comment = parseComment(rawComment, reflection.comment);
+                this.applyModifiers(reflection, comment);
+                reflection.comment = comment;
+            }
         }
     }
 

@@ -59,8 +59,8 @@ export function createDeclaration(context: Context, node: ts.Declaration, kind: 
         isExported = container.flags.isExported;
     }
 
-    if (kind === ReflectionKind.ExternalModule) {
-        isExported = true; // Always mark external modules as exported
+    if (kind === ReflectionKind.ExternalModule || ts.isJSDocTypedefTag(node) || ts.isJSDocPropertyTag(node)) {
+        isExported = true; // Always mark external modules and JSDoc type tags as exported
     } else if (node.parent && node.parent.kind === ts.SyntaxKind.VariableDeclarationList) {
         const parentModifiers = ts.getCombinedModifierFlags(node.parent.parent as ts.Declaration);
         isExported = isExported || !!(parentModifiers & ts.ModifierFlags.Export);

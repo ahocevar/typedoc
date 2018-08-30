@@ -1,4 +1,5 @@
 import * as ts from 'typescript';
+import * as _ts from '../../ts-internal';
 
 import { Reflection, ReflectionKind, ReflectionFlag } from '../../models/index';
 import { createDeclaration } from '../factories/index';
@@ -83,20 +84,25 @@ export class BlockConverter extends ConverterNodeComponent<ts.SourceFile|ts.Bloc
     }
 
     private convertStatements(context: Context, node: ts.SourceFile|ts.Block|ts.ModuleBlock) {
-        if (node.statements) {
-            const statements: ts.Statement[] = [];
+        const statements: ts.Statement[] = [];
 
-            node.statements.forEach((statement) => {
-                if (prefered.indexOf(statement.kind) !== -1) {
-                    this.owner.convertNode(context, statement);
-                } else {
-                    statements.push(statement);
+        ts.forEachChild(node, (node) => {
+            ts.getJSDocTags(node).forEach((tag) => {
+                if (ts.isJSDocTypedefTag(tag)) {
+                    this.owner.convertNode(context, tag);
                 }
             });
+            if (_ts.isStatement(node)) {
+                if (prefered.indexOf(node.kind) !== -1) {
+                    this.owner.convertNode(context, node);
+                } else {
+                    statements.push(node);
+                }
+            }
+        });
 
-            statements.forEach((statement) => {
-                this.owner.convertNode(context, statement);
-            });
-        }
+        statements.forEach((statement) => {
+            this.owner.convertNode(context, statement);
+        });
     }
 }

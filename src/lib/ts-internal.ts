@@ -96,6 +96,11 @@ export function isBindingPattern(node: ts.Node): node is ts.BindingPattern {
   return tsany.isBindingPattern.apply(this, arguments);
 }
 
+// https://github.com/Microsoft/TypeScript/blob/v3.0.1/src/compiler/utilities.ts#L6484
+export function isStatement(node: ts.Node): node is ts.Statement {
+  return tsany.isStatement.apply(this, arguments);
+}
+
 // https://github.com/Microsoft/TypeScript/blob/v3.0.1/src/compiler/utilities.ts#L2408
 export function getEffectiveBaseTypeNode(node: ts.ClassLikeDeclaration | ts.InterfaceDeclaration) {
   return tsany.getEffectiveBaseTypeNode.apply(this, arguments);

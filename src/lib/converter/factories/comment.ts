@@ -11,7 +11,7 @@ import { Comment, CommentTag } from '../../models/comments/index';
  *     no comment is present.
  */
 export function createComment(node: ts.Node): Comment {
-    const comment = getRawComment(node);
+    const comment = (ts.isJSDocTypedefTag(node) || ts.isJSDocPropertyTag(node)) ? node.comment : getRawComment(node);
     if (comment == null) {
         return null;
     }

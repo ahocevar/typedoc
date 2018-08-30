@@ -18,7 +18,8 @@ export class VariableConverter extends ConverterNodeComponent<ts.VariableDeclara
         ts.SyntaxKind.PropertyAssignment,
         ts.SyntaxKind.ShorthandPropertyAssignment,
         ts.SyntaxKind.VariableDeclaration,
-        ts.SyntaxKind.BindingElement
+        ts.SyntaxKind.BindingElement,
+        ts.SyntaxKind.LastJSDocTagNode
     ];
 
     isSimpleObjectLiteral(objectLiteral: ts.ObjectLiteralExpression): boolean {
@@ -35,7 +36,7 @@ export class VariableConverter extends ConverterNodeComponent<ts.VariableDeclara
      * @param node     The variable declaration node that should be analyzed.
      * @return The resulting reflection or NULL.
      */
-    convert(context: Context, node: ts.VariableDeclaration): Reflection {
+    convert(context: Context, node: ts.VariableDeclaration|ts.JSDocPropertyTag): Reflection {
         const comment = createComment(node);
         if (comment && comment.hasTag('resolve')) {
             const resolveType = context.getTypeAtLocation(node);
@@ -82,7 +83,7 @@ export class VariableConverter extends ConverterNodeComponent<ts.VariableDeclara
         }
 
         context.withScope(variable, () => {
-            if (node.initializer) {
+            if (!ts.isJSDocPropertyTag(node) && node.initializer) {
                 switch (node.initializer.kind) {
                     case ts.SyntaxKind.ArrowFunction:
                     case ts.SyntaxKind.FunctionExpression:
@@ -105,7 +106,8 @@ export class VariableConverter extends ConverterNodeComponent<ts.VariableDeclara
                 if (isBindingPattern) {
                     variable.type = this.owner.convertType(context, node.name);
                 } else {
-                    variable.type = this.owner.convertType(context, node.type, context.getTypeAtLocation(node));
+                    const type = ts.isJSDocPropertyTag(node) ? node.typeExpression.type : node.type;
+                    variable.type = this.owner.convertType(context, type, context.getTypeAtLocation(node));
                 }
             }
         });

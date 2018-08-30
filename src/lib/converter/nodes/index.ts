@@ -7,6 +7,7 @@ export { EnumConverter } from './enum';
 export { ExportConverter } from './export';
 export { FunctionConverter } from './function';
 export { InterfaceConverter } from './interface';
+export { JSDocTypedefConverter } from './jsdoctypedef';
 export { TypeLiteralConverter } from './literal-type';
 export { ObjectLiteralConverter } from './literal-object';
 export { ModuleConverter } from './module';
