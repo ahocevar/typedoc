@@ -47,7 +47,8 @@ export class ReferenceConverter extends ConverterTypeComponent implements TypeNo
     convertNode(context: Context, node: ts.TypeReferenceNode, type: ts.TypeReference): Type {
         if (!type.symbol) {
             return new IntrinsicType('Object');
-        } else if (type.symbol.declarations && (type.symbol.flags & ts.SymbolFlags.TypeLiteral || type.symbol.flags & ts.SymbolFlags.ObjectLiteral)) {
+        } else if (!ts.isImportTypeNode(node) &&
+                type.symbol.declarations && (type.symbol.flags & ts.SymbolFlags.TypeLiteral || type.symbol.flags & ts.SymbolFlags.ObjectLiteral)) {
             return this.convertLiteral(context, type.symbol, node);
         }
 
