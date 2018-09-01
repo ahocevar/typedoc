@@ -46,7 +46,7 @@
     "progress": "^2.0.0",
     "shelljs": "^0.8.2",
     "typedoc-default-themes": "^0.5.0",
-    "typescript": "^3.1.0-dev.20180823"
+    "typescript": "^3.1.0-dev.20180830"
   },
   "devDependencies": {
     "@types/mocha": "^5.2.4",
