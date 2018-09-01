@@ -26,7 +26,19 @@ export function createParameter(context: Context, node: ts.ParameterDeclaration)
             parameter.type = context.converter.convertType(context, node.name);
             parameter.name = '__namedParameters';
         } else {
-            parameter.type = context.converter.convertType(context, node.type, context.getTypeAtLocation(node));
+            let type = node.type;
+            if (!type) {
+              const jsDocParameters = ts.getJSDocTags(node);
+              if (jsDocParameters) {
+                  jsDocParameters.find((param) => {
+                      if (ts.isJSDocParameterTag(param) && param.name.getText() === node.name.getText() && param.typeExpression) {
+                          type = param.typeExpression.type;
+                          return true;
+                      }
+                  });
+                }
+            }
+            parameter.type = context.converter.convertType(context, type, context.getTypeAtLocation(node));
         }
 
         parameter.defaultValue = convertDefaultValue(node);
