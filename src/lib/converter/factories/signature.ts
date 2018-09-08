@@ -49,10 +49,18 @@ export function createSignature(context: Context, node: ts.SignatureDeclaration,
 function extractSignatureType(context: Context, node: ts.SignatureDeclaration): Type {
     const checker = context.checker;
     if (node.kind & ts.SyntaxKind.CallSignature || node.kind & ts.SyntaxKind.CallExpression) {
-        try {
-            const signature = checker.getSignatureFromDeclaration(node);
-            return context.converter.convertType(context, node.type, checker.getReturnTypeOfSignature(signature));
-        } catch (error) {}
+        const jsDocTags = ts.getJSDocTags(node);
+        const returnTag = jsDocTags.find(function(tag) {
+          return ts.isJSDocReturnTag(tag);
+        }) as ts.JSDocReturnTag;
+        if (returnTag && returnTag.typeExpression) {
+          return context.converter.convertType(context, returnTag.typeExpression.type, context.getTypeAtLocation(node));
+        } else {
+          try {
+              const signature = checker.getSignatureFromDeclaration(node);
+              return context.converter.convertType(context, node.type, checker.getReturnTypeOfSignature(signature));
+          } catch (error) {}
+        }
     }
 
     if (node.type) {
