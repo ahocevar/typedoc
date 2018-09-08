@@ -36,8 +36,8 @@ export function createJSDocReferenceType(context: Context, node: ts.ImportTypeNo
     const literal = ((node.argument as ts.LiteralTypeNode).literal as ts.LiteralExpression);
     const file = _ts.getResolvedModule(_ts.getSourceFileOfNode(node), literal.text).resolvedFileName;
     const sourceFileObject = context.program.getSourceFile(file);
-    const local = (sourceFileObject as any).locals.get(name);
-    const id = context.getSymbolID(local.exportSymbol);
+    let symbol = sourceFileObject.symbol.exports.get(ts.escapeLeadingUnderscores(name));
+    const id = context.getSymbolID(symbol);
 
     return new ReferenceType(name, id);
 }
