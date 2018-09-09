@@ -22,27 +22,31 @@ export function createParameter(context: Context, node: ts.ParameterDeclaration)
     const parameter = new ParameterReflection(signature, node.symbol.name, ReflectionKind.Parameter);
     context.registerReflection(parameter, node);
     context.withScope(parameter, () => {
+        let optional = !!node.questionToken;
         if (_ts.isBindingPattern(node.name)) {
             parameter.type = context.converter.convertType(context, node.name);
             parameter.name = '__namedParameters';
         } else {
             let type = node.type;
-            if (!type) {
-              const jsDocParameters = ts.getJSDocTags(node);
-              if (jsDocParameters) {
-                  jsDocParameters.find((param) => {
-                      if (ts.isJSDocParameterTag(param) && param.name.getText() === node.name.getText() && param.typeExpression) {
-                          type = param.typeExpression.type;
-                          return true;
-                      }
-                  });
+            const jsDocParameters = ts.getJSDocTags(node);
+            if (!type && jsDocParameters) {
+                for (let i = 0, ii = jsDocParameters.length; i < ii; ++i) {
+                    const param = jsDocParameters[i];
+                    if (ts.isJSDocParameterTag(param) && param.name.getText() === node.name.getText() && param.typeExpression) {
+                        type = param.typeExpression.type;
+                        if (ts.isJSDocOptionalType(type)) {
+                            optional = true;
+                            type = type.type;
+                        }
+                        break;
+                    }
                 }
             }
             parameter.type = context.converter.convertType(context, type, context.getTypeAtLocation(node));
         }
 
         parameter.defaultValue = convertDefaultValue(node);
-        parameter.setFlag(ReflectionFlag.Optional, !!node.questionToken);
+        parameter.setFlag(ReflectionFlag.Optional, optional);
         parameter.setFlag(ReflectionFlag.Rest, !!node.dotDotDotToken);
         parameter.setFlag(ReflectionFlag.DefaultValue, !!parameter.defaultValue);
 
