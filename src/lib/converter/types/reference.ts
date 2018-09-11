@@ -52,7 +52,7 @@ export class ReferenceConverter extends ConverterTypeComponent implements TypeNo
             return this.convertLiteral(context, type.symbol, node);
         }
 
-        const result = ts.isImportTypeNode(node) ? createJSDocReferenceType(context, node) : createReferenceType(context, type.symbol);
+        const result = ts.isImportTypeNode(node) ? createJSDocReferenceType(context, node, type.symbol) : createReferenceType(context, type.symbol);
         if (node.typeArguments) {
             result.typeArguments = node.typeArguments.map((n) => this.owner.convertType(context, n));
         }

@@ -96,6 +96,11 @@ export function getJSDocCommentRanges(node: ts.Node, text: string) {
   return tsany.getJSDocCommentRanges.apply(this, arguments);
 }
 
+// https://github.com/Microsoft/TypeScript/blob/v3.0.1/src/compiler/utilities.ts#L6596
+export function hasType(node: ts.Node): node is ts.HasType {
+  return tsany.hasType.apply(this, arguments);
+}
+
 // https://github.com/Microsoft/TypeScript/blob/v2.1.4/src/compiler/utilities.ts#L3738
 export function isBindingPattern(node: ts.Node): node is ts.BindingPattern {
   return tsany.isBindingPattern.apply(this, arguments);

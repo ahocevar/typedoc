@@ -1,4 +1,5 @@
 import * as ts from 'typescript';
+import * as _ts from '../../ts-internal';
 
 import { Type, UnionType, IntersectionType } from '../../models/types/index';
 import { Component, ConverterTypeComponent, TypeConverter } from '../components';
@@ -36,7 +37,7 @@ export class UnionOrIntersectionConverter extends ConverterTypeComponent impleme
     convertNode(context: Context, node: ts.UnionOrIntersectionTypeNode): UnionType | IntersectionType {
         let types: Type[] = [];
         if (node.types) {
-            types = node.types.map((n) => this.owner.convertType(context, n));
+            types = node.types.map((n) => this.owner.convertType(context, _ts.hasType(n) ? n.type : n));
         } else {
             types = [];
         }

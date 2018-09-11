@@ -29,14 +29,20 @@ export function createReferenceType(context: Context, symbol: ts.Symbol, include
  *
  * @param context  The context object describing the current state the converter is in.
  * @param node  The import type node the reference type should point to.
+ * @param resolvedSymbol The symbol that the node's type was resolved to.
  * @returns A new reference type instance pointing to the given import type node.
  */
-export function createJSDocReferenceType(context: Context, node: ts.ImportTypeNode): ReferenceType {
+export function createJSDocReferenceType(context: Context, node: ts.ImportTypeNode, resolvedSymbol: ts.Symbol): ReferenceType {
     const name = node.qualifier.getText();
     const literal = ((node.argument as ts.LiteralTypeNode).literal as ts.LiteralExpression);
     const file = _ts.getResolvedModule(_ts.getSourceFileOfNode(node), literal.text).resolvedFileName;
     const sourceFileObject = context.program.getSourceFile(file);
-    let symbol = sourceFileObject.symbol.exports.get(ts.escapeLeadingUnderscores(name));
+
+    if (_ts.getSourceFileOfNode(resolvedSymbol.valueDeclaration) === sourceFileObject) {
+        return createReferenceType(context, resolvedSymbol);
+    }
+
+    const symbol = sourceFileObject.symbol.exports.get(ts.escapeLeadingUnderscores(name));
     const id = context.getSymbolID(symbol);
 
     return new ReferenceType(name, id);
