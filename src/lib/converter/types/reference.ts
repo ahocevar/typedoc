@@ -19,7 +19,7 @@ export class ReferenceConverter extends ConverterTypeComponent implements TypeNo
      * Test whether this converter can handle the given TypeScript node.
      */
     supportsNode(context: Context, node: ts.TypeReferenceNode, type: ts.TypeReference): boolean {
-        return !!(type.flags & ts.TypeFlags.Object);
+        return !!(type.flags & ts.TypeFlags.Object) || ts.isImportTypeNode(node);
     }
 
     /**
@@ -45,11 +45,12 @@ export class ReferenceConverter extends ConverterTypeComponent implements TypeNo
      * @returns The type reflection representing the given reference node.
      */
     convertNode(context: Context, node: ts.TypeReferenceNode, type: ts.TypeReference): Type {
-        if (!type.symbol) {
-            return new IntrinsicType('Object');
-        } else if (!ts.isImportTypeNode(node) &&
-                type.symbol.declarations && (type.symbol.flags & ts.SymbolFlags.TypeLiteral || type.symbol.flags & ts.SymbolFlags.ObjectLiteral)) {
-            return this.convertLiteral(context, type.symbol, node);
+        if (!ts.isImportTypeNode(node)) {
+            if (!type.symbol) {
+                return new IntrinsicType('Object');
+            } else if (type.symbol.declarations && (type.symbol.flags & ts.SymbolFlags.TypeLiteral || type.symbol.flags & ts.SymbolFlags.ObjectLiteral)) {
+                return this.convertLiteral(context, type.symbol, node);
+            }
         }
 
         const result = ts.isImportTypeNode(node) ? createJSDocReferenceType(context, node, type.symbol) : createReferenceType(context, type.symbol);

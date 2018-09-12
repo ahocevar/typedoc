@@ -37,6 +37,8 @@ export function createParameter(context: Context, node: ts.ParameterDeclaration)
                         if (ts.isJSDocOptionalType(type)) {
                             optional = true;
                             type = type.type;
+                        } else if (ts.isJSDocNonNullableType(type) || ts.isJSDocNullableType(type)) {
+                            type = type.type;
                         }
                         break;
                     }

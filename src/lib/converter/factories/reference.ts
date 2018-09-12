@@ -32,13 +32,13 @@ export function createReferenceType(context: Context, symbol: ts.Symbol, include
  * @param resolvedSymbol The symbol that the node's type was resolved to.
  * @returns A new reference type instance pointing to the given import type node.
  */
-export function createJSDocReferenceType(context: Context, node: ts.ImportTypeNode, resolvedSymbol: ts.Symbol): ReferenceType {
+export function createJSDocReferenceType(context: Context, node: ts.ImportTypeNode, resolvedSymbol: ts.Symbol?): ReferenceType {
     const name = node.qualifier.getText();
     const literal = ((node.argument as ts.LiteralTypeNode).literal as ts.LiteralExpression);
     const file = _ts.getResolvedModule(_ts.getSourceFileOfNode(node), literal.text).resolvedFileName;
     const sourceFileObject = context.program.getSourceFile(file);
 
-    if (_ts.getSourceFileOfNode(resolvedSymbol.valueDeclaration) === sourceFileObject) {
+    if (resolvedSymbol && _ts.getSourceFileOfNode(resolvedSymbol.valueDeclaration) === sourceFileObject) {
         return createReferenceType(context, resolvedSymbol);
     }
 
