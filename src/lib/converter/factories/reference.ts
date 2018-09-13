@@ -37,17 +37,20 @@ export function createJSDocReferenceType(context: Context, node: ts.ImportTypeNo
     const literal = ((node.argument as ts.LiteralTypeNode).literal as ts.LiteralExpression);
     const sourceFile = _ts.getSourceFileOfNode(node);
     const targetModule = _ts.getResolvedModule(sourceFile, literal.text);
-    if (!targetModule) {
+
+    if (!targetModule && literal.text.charAt(0) === '.') {
         throw new Error(`Invalid import '${node.getText()}' in ${sourceFile.fileName}`);
     }
-    const sourceFileObject = context.program.getSourceFile(targetModule.resolvedFileName);
 
-    if (resolvedSymbol && _ts.getSourceFileOfNode(resolvedSymbol.valueDeclaration) === sourceFileObject) {
-        return createReferenceType(context, resolvedSymbol);
+    if (targetModule) {
+        const sourceFileObject = context.program.getSourceFile(targetModule.resolvedFileName);
+        if (resolvedSymbol && _ts.getSourceFileOfNode(resolvedSymbol.valueDeclaration) === sourceFileObject) {
+            return createReferenceType(context, resolvedSymbol);
+        }
+
+        const symbol = sourceFileObject.symbol.exports.get(ts.escapeLeadingUnderscores(name));
+        return new ReferenceType(name,  context.getSymbolID(symbol));
     }
 
-    const symbol = sourceFileObject.symbol.exports.get(ts.escapeLeadingUnderscores(name));
-    const id = context.getSymbolID(symbol);
-
-    return new ReferenceType(name, id);
+    return new ReferenceType(name, context.getSymbolID(resolvedSymbol));
 }

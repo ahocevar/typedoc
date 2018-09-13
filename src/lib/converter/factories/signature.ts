@@ -53,14 +53,13 @@ function extractSignatureType(context: Context, node: ts.SignatureDeclaration): 
         const returnTag = jsDocTags.find(function(tag) {
           return ts.isJSDocReturnTag(tag);
         }) as ts.JSDocReturnTag;
-        if (returnTag && returnTag.typeExpression) {
-          return context.converter.convertType(context, returnTag.typeExpression.type, context.getTypeAtLocation(node));
-        } else {
-          try {
-              const signature = checker.getSignatureFromDeclaration(node);
-              return context.converter.convertType(context, node.type, checker.getReturnTypeOfSignature(signature));
-          } catch (error) {}
-        }
+        try {
+            const signature = checker.getSignatureFromDeclaration(node);
+            if (returnTag && returnTag.typeExpression) {
+                return context.converter.convertType(context, returnTag.typeExpression.type, checker.getReturnTypeOfSignature(signature));
+            }
+            return context.converter.convertType(context, node.type, checker.getReturnTypeOfSignature(signature));
+        } catch (error) {}
     }
 
     if (node.type) {
