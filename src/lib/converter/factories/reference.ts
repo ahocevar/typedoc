@@ -48,9 +48,10 @@ export function createJSDocReferenceType(context: Context, node: ts.ImportTypeNo
             return createReferenceType(context, resolvedSymbol);
         }
 
-        const symbol = sourceFileObject.symbol.exports.get(ts.escapeLeadingUnderscores(name));
-        return new ReferenceType(name,  context.getSymbolID(symbol));
+        let symbol = sourceFileObject.symbol.exports.get(ts.escapeLeadingUnderscores(name));
+        if (!symbol) {
+            throw new Error(`Invalid import '${node.getText()}' in ${sourceFile.fileName}`);
+        }
+        return createReferenceType(context, symbol);
     }
-
-    return new ReferenceType(name, context.getSymbolID(resolvedSymbol));
 }
