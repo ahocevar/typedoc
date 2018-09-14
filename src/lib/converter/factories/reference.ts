@@ -52,6 +52,15 @@ export function createJSDocReferenceType(context: Context, node: ts.ImportTypeNo
         if (!symbol) {
             throw new Error(`Invalid import '${node.getText()}' in ${sourceFile.fileName}`);
         }
+        if (symbol.flags & ts.NodeFlags.JSDoc) {
+            const declarations = symbol.getDeclarations();
+            if (declarations.length) {
+                const declaration = declarations[0];
+                if (ts.isExportAssignment(declaration)) {
+                    symbol = context.checker.getTypeAtLocation(declaration.expression).symbol;
+                }
+            }
+        }
         return createReferenceType(context, symbol);
     }
 }
